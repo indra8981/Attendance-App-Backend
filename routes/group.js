@@ -19,7 +19,7 @@ router.route('/createGroup').post((req, res) => {
 router.route('/listGroup').get(async (req, res) => {
   const userId = req.query.userId;
   let resu = await new Promise((resolve, reject) => {
-    const sqlQuery = `SELECT groupTable.Id, groupTable.groupName 
+    const sqlQuery = `SELECT groupTable.Id, groupTable.groupName groupTable.groupType
                     FROM groupTable
                     JOIN userAccess
                     ON groupTable.id = userAccess.groupId
