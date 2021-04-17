@@ -36,6 +36,8 @@ app.use('/uploads', express.static('uploads'));
 
 const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
+const groupsRouter = require('./routes/group');
+app.use('/group', groupsRouter);
 const classRoomsRouter = require('./routes/classrooms');
 app.use('/classrooms', classRoomsRouter);
 const assignmentRouter = require('./routes/assignment');
