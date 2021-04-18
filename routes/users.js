@@ -149,6 +149,24 @@ router.route('/grantAccess').post((req, res) => {
   }
   res.sendStatus(201);
 });
+router.route('/updateLocation').post(function (req, res) {
+  const userEmail = res.body.userEmail;
+  const latitude = res.body.latitude;
+  const longitude = res.body.longitude;
+  const timestamp = res.body.timestamp;
+  const sqlQuery = `INSERT INTO locationTable(userEmail, latitude, longiude,timestamp) VALUES ? ON DUPLICATE KEY UPDATE latitude = ${latitude}, longiude = ${longitude}, timetamp=${timestamp}`;
+  sql.query(
+    sqlQuery,
+    [userEmail, latitude, longitude, timestamp],
+    function (err, result) {
+      if (err) {
+        res.sendStatus(400);
+        return;
+      }
+      console.log('Number of records inserted: ' + result.affectedRows);
+    },
+  );
+});
 
 router.route(`/`);
 
