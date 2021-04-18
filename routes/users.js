@@ -87,68 +87,6 @@ router.route('/login').post((req, res) => {
   });
 });
 
-router.route('/getAllOrgs/:userId').get(withAuth, (req, res) => {
-  const userId = req.params.userId;
-  var sqlQuery = '';
-  console.log(res.userType);
-  switch (res.userType) {
-    case 0:
-      sqlQuery = `SELECT *
-                  FROM organization 
-                  WHERE organization.createdByUser=?`;
-      break;
-    case 1:
-      sqlQuery = `SELECT *
-                  FROM organization 
-                  INNER JOIN 
-                  teacherAccess ON organization.id = teacherAccess.organizationId
-                  WHERE teacherAccess.teacherEmail=?`;
-      break;
-    case 2:
-      sqlQuery = `SELECT *
-                  FROM organization 
-                  INNER JOIN 
-                  (SELECT classroom.organizationId FROM
-                  classroom JOIN studentAccess 
-                  ON classroom.id = studentAccess.classroomId
-                  WHERE studentAccess.studentEmail=?) classroomStudent
-                  ON organization.id = classroomStudent.organizationId`;
-      break;
-  }
-
-  console.log(sqlQuery);
-  sql.query(sqlQuery, userId, function (err, result) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(400);
-      return;
-    }
-    res.status(200).json({data: result});
-  });
-});
-
-router.route('/grantAccess').post((req, res) => {
-  const emailList = req.body.emails.split(',');
-  const userAccessLevel = parseInt(req.body.currLevel) + 1;
-  const organizationId = req.body.organizationId;
-  const sqrt = parseInt(Math.sqrt(emailList.length));
-  const sqlQuery = `INSERT INTO userAccess (userEmail , organizationId, accessType) VALUES ?`;
-  for (let i = 0; i < emailList.length; ) {
-    var values = [];
-    for (var j = i; j < Math.min(emailList.length, i + sqrt); j++) {
-      values.push([emailList[j], organizationId, userAccessLevel]);
-    }
-    sql.query(sqlQuery, [values], function (err, result) {
-      if (err) {
-        res.sendStatus(400);
-        return;
-      }
-      console.log('Number of records inserted: ' + result.affectedRows);
-    });
-    i += sqrt;
-  }
-  res.sendStatus(201);
-});
 router.route('/updateLocation').post(function (req, res) {
   console.log(req.body)
   const userEmail = req.body.userEmail;
