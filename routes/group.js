@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const sql = require('../mysql.js');
-
+const {route} = require('./users.js');
 router.route('/createGroup').post((req, res) => {
   const sqlQuery = 'INSERT INTO groupTable SET ?';
   sql.query(sqlQuery, req.body, function (err, result) {
@@ -21,7 +21,7 @@ router.route('/createGroup').post((req, res) => {
 router.route('/listGroup').get(async (req, res) => {
   const userId = req.query.userId;
   let resu = await new Promise((resolve, reject) => {
-    const sqlQuery = `SELECT groupTable.Id, groupTable.groupName, groupTable.groupType
+    const sqlQuery = `SELECT groupTable.Id, groupTable.groupName, groupTable.groupType,groupTable.createdByUser
                     FROM groupTable
                     JOIN userAccess
                     ON groupTable.id = userAccess.groupId
