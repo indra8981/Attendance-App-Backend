@@ -15,7 +15,8 @@ router.route('/createGroup').post((req, res) => {
         ' ' +
         result.insertId,
     );
-    res.sendStatus(201).body(result);
+    console.log(result);
+    res.status(201).send(result);
   });
 });
 
