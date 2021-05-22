@@ -1,9 +1,9 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const dbConfig = {
-  HOST: 'sql6.freesqldatabase.com',
-  USER: 'sql6404964',
-  PASSWORD: 'AL3HamHDkI',
-  DB: 'sql6404964',
+  HOST: 'localhost',
+  USER: 'root',
+  PASSWORD: 'root',
+  DB: 'attendance_app',
 };
 
 function handleDisconnect() {
