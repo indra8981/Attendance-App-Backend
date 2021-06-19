@@ -5,12 +5,13 @@ const jwt = require('jsonwebtoken');
 const withAuth = require('./middleware.js');
 const User = require('./models/user.model');
 const sql = require('./mysql.js');
+const chat = require('./utils/chat.js')
 require('dotenv').config();
 const secret = process.env.SECRET_JWT;
 
 const app = express();
 const port = process.env.PORT || 8000;
-const {addUser, getUser, deleteUser, getUsers} = require('./user');
+const {addUser, getUser, deleteUser, getUsers} = require('./utils/user');
 
 app.use(cors());
 app.use(express.json());
@@ -38,6 +39,7 @@ const io = require('socket.io')(http);
 io.on('connection', socket => {
   socket.on('login', ({name, room}, callback) => {
     const {user, error} = addUser(socket.id, name, room);
+    console.log("Hola ", socket.id, name, room)
     if (error) {
       console.log(error);
       return error;
@@ -54,6 +56,8 @@ io.on('connection', socket => {
   socket.on('sendMessage', message => {
     console.log('Sending Message', message);
     const user = getUser(socket.id);
+    console.log(message)
+    chat(message[0], user.room);
     socket.broadcast
       .to(user.room)
       .emit('message', {user: user.name, text: message});
@@ -79,13 +83,8 @@ const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
 const groupsRouter = require('./routes/group');
 app.use('/group', groupsRouter);
-const classRoomsRouter = require('./routes/classrooms');
-app.use('/classrooms', classRoomsRouter);
-const assignmentRouter = require('./routes/assignment');
-app.use('/assignment', assignmentRouter);
-const assignmentSubmitRouter = require('./routes/assignment-submit');
-app.use('/assignment-submit', assignmentSubmitRouter);
-
+const chatsRouter = require('./routes/chat');
+app.use('/chats', chatsRouter);
 app.get('/checkToken', withAuth, function (req, res) {
   res
     .status(200)
