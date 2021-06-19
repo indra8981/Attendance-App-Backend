@@ -10,6 +10,7 @@ const secret = process.env.SECRET_JWT;
 
 const app = express();
 const port = process.env.PORT || 8000;
+const {addUser, getUser, deleteUser, getUsers} = require('./user');
 
 app.use(cors());
 app.use(express.json());
@@ -31,6 +32,46 @@ app.use(cookieParser());
 //         res.cookie("token", token, { httpOnly: false }).sendStatus(200);
 //   });
 // });
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+
+io.on('connection', socket => {
+  socket.on('login', ({name, room}, callback) => {
+    const {user, error} = addUser(socket.id, name, room);
+    if (error) {
+      console.log(error);
+      return error;
+    }
+    socket.join(user.room);
+    socket.in(room).emit('notification', {
+      title: "Someone's here",
+      description: `${user.name} just entered the room`,
+    });
+    console.log(getUsers(room));
+    io.in(room).emit('users', getUsers(room));
+  });
+
+  socket.on('sendMessage', message => {
+    console.log('Sending Message', message);
+    const user = getUser(socket.id);
+    socket.broadcast
+      .to(user.room)
+      .emit('message', {user: user.name, text: message});
+  });
+
+  socket.on('logout', () => {
+    console.log('User disconnected');
+    const user = deleteUser(socket.id);
+    if (user) {
+      io.in(user.room).emit('notification', {
+        title: 'Someone just left',
+        description: `${user.name} just left the room`,
+      });
+      io.in(user.room).emit('users', getUsers(user.room));
+    }
+    console.log(user);
+  });
+});
 
 app.use('/uploads', express.static('uploads'));
 
@@ -51,6 +92,6 @@ app.get('/checkToken', withAuth, function (req, res) {
     .json({email: res.email, name: res.name, userType: res.userType});
 });
 
-app.listen(port, () => {
+http.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
