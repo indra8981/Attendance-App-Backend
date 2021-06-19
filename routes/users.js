@@ -88,25 +88,22 @@ router.route('/login').post((req, res) => {
 });
 
 router.route('/updateLocation').post(function (req, res) {
-  console.log(req.body)
+  console.log(req.body);
   const userEmail = req.body.userEmail;
   const latitude = req.body.latitude;
   const longitude = req.body.longitude;
   const timestamp = req.body.timestamp;
-  const sqlQuery = `INSERT INTO locationTable (userEmail, latitude, longitude,timestamp) VALUES ('${userEmail}', ${latitude}, ${longitude}, ${timestamp}) ON DUPLICATE KEY UPDATE latitude = ${latitude}, longitude = ${longitude}, timestamp=${timestamp}`;
-  console.log(sqlQuery)
-  sql.query(
-    sqlQuery,
-    function (err, result) {
-      if (err) {
-        res.sendStatus(400);
-        console.log(err)
-        return;
-      }
-      console.log('Number of records inserted: ' + result.affectedRows);
-      res.sendStatus(200);
-    },
-  );
+  const sqlQuery = `INSERT INTO locationTable (userId, latitude, longitude,timestamp) VALUES ('${userEmail}', ${latitude}, ${longitude}, ${timestamp}) ON DUPLICATE KEY UPDATE latitude = ${latitude}, longitude = ${longitude}, timestamp=${timestamp}`;
+  console.log(sqlQuery);
+  sql.query(sqlQuery, function (err, result) {
+    if (err) {
+      res.sendStatus(400);
+      console.log(err);
+      return;
+    }
+    console.log('Number of records inserted: ' + result.affectedRows);
+    res.sendStatus(200);
+  });
 });
 
 router.route(`/`);
