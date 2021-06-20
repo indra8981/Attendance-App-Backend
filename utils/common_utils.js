@@ -17,4 +17,19 @@ function distance(lat1, lon1, lat2, lon2) {
   return c * r;
 }
 
-module.exports = {distance};
+function date_diff_indays(date1, date2) {
+  dt1 = new Date(date1);
+  dt2 = new Date(date2);
+  return Math.floor(
+    (Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) -
+      Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate())) /
+      (1000 * 60 * 60 * 24),
+  );
+}
+
+function dateToTimestamp(date) {
+  date = new Date(date);
+  return date.getTime();
+}
+
+module.exports = {distance, date_diff_indays, dateToTimestamp};
