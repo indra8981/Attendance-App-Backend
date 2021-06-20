@@ -4,26 +4,43 @@ const {route} = require('./users.js');
 const group = require('../service/group.js');
 const attendance = require('../service/attendance.js');
 const constants = require('../service/constants.js')
+const dsu = require('../utils/dsu.js')
 
 router.route('/start-attendance').get(async (req, res) => {
+  const currEpoch = +new Date();
   const groupId = req.query.groupId;
-  const [allUsersInClassroom, groupCreatorLocation] = await Promise.all([
+  let [allUsersInClassroom, groupCreatorLocation] = await Promise.all([
     group.getAllUsersInClassroom(groupId),
     group.getGroupCreatorLocation(groupId),
   ]);
   new Promise((resolve, reject) => {
-    let lastEpoch = attendance.logAttendanceFirstTime(
+    let usersLoggedFirstTime = attendance.logAttendanceFirstTime(
       allUsersInClassroom,
       groupCreatorLocation,
-      groupId,
+      currEpoch
     );
-    setTimeout(function () {
-      attendance.logAttendanceSecondTime(
+    setTimeout(async function () {
+      let [allUsersInClassroom, groupCreatorLocation] = await Promise.all([
+        group.getAllUsersInClassroom(groupId),
+        group.getGroupCreatorLocation(groupId),
+        currEpoch
+      ]);
+      let usersLoggedSecondTime = attendance.logAttendanceSecondTime(
         allUsersInClassroom,
         groupCreatorLocation,
-        groupId,
-        lastEpoch
+        currEpoch
       );
+      const usersLoggedInBothTimes = []
+      for(let user1 of usersLoggedFirstTime) {
+        for(let user2 of usersLoggedSecondTime) {
+          if(user2.userId === user1.userId) {
+            usersLoggedInBothTimes.push(user1);
+            break;
+          }
+        }
+      }
+      const usersPresent = dsu.getClusterOfPresentStudents(usersLoggedInBothTimes);
+      attendance.markStudentsPresentInDataBase(usersPresent, currEpoch, groupId);
     }, constants.EPOCH_DIFFERENCE_BETWEEN_TWO_ATTENDANCE_LOGS);
     resolve();
   });
