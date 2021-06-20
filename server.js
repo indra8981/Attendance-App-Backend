@@ -5,13 +5,13 @@ const jwt = require('jsonwebtoken');
 const withAuth = require('./middleware.js');
 const User = require('./models/user.model');
 const sql = require('./mysql.js');
-const chat = require('./utils/chat.js')
+const chat = require('./service/chat.js')
 require('dotenv').config();
 const secret = process.env.SECRET_JWT;
 
 const app = express();
 const port = process.env.PORT || 8000;
-const {addUser, getUser, deleteUser, getUsers} = require('./utils/user');
+const {addUser, getUser, deleteUser, getUsers} = require('./service/user');
 
 app.use(cors());
 app.use(express.json());
@@ -85,6 +85,9 @@ const groupsRouter = require('./routes/group');
 app.use('/group', groupsRouter);
 const chatsRouter = require('./routes/chat');
 app.use('/chats', chatsRouter);
+const attendanceRouter = require('./routes/attendance')
+app.use('/attendance', attendanceRouter)
+
 app.get('/checkToken', withAuth, function (req, res) {
   res
     .status(200)
