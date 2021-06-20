@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const withAuth = require('../middleware');
-let User = require('../models/user.model');
 const sql = require('../mysql.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');

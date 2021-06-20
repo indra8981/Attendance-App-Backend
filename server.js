@@ -3,7 +3,6 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const withAuth = require('./middleware.js');
-const User = require('./models/user.model');
 const sql = require('./mysql.js');
 const chat = require('./service/chat.js')
 require('dotenv').config();
