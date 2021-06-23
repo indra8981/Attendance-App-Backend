@@ -4,14 +4,16 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const withAuth = require('./middleware.js');
 const sql = require('./mysql.js');
-const chat = require('./service/chat.js')
+const chat = require('./service/chat.js');
 require('dotenv').config();
 const secret = process.env.SECRET_JWT;
+var AWS = require('aws-sdk');
 
 const app = express();
 const port = process.env.PORT || 8000;
+const fileUpload = require('express-fileupload');
 const {addUser, getUser, deleteUser, getUsers} = require('./service/user');
-
+app.use(fileUpload());
 app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
@@ -34,11 +36,20 @@ app.use(cookieParser());
 // });
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
+const constants = require('./service/constants');
+
+const s3 = new AWS.S3({
+  accessKeyId: 'minioadmin',
+  secretAccessKey: 'minioadmin',
+  endpoint: constants.S3_ENDPOINT,
+  s3ForcePathStyle: true,
+  signatureVersion: 'v4',
+});
 
 io.on('connection', socket => {
   socket.on('login', ({name, room}, callback) => {
     const {user, error} = addUser(socket.id, name, room);
-    console.log("Hola ", socket.id, name, room)
+    console.log('Hola ', socket.id, name, room);
     if (error) {
       console.log(error);
       return error;
@@ -55,7 +66,7 @@ io.on('connection', socket => {
   socket.on('sendMessage', message => {
     console.log('Sending Message', message);
     const user = getUser(socket.id);
-    console.log(message)
+    console.log(message);
     chat(message[0], user.room);
     socket.broadcast
       .to(user.room)
@@ -84,13 +95,28 @@ const groupsRouter = require('./routes/group');
 app.use('/group', groupsRouter);
 const chatsRouter = require('./routes/chat');
 app.use('/chats', chatsRouter);
-const attendanceRouter = require('./routes/attendance')
-app.use('/attendance', attendanceRouter)
+const attendanceRouter = require('./routes/attendance');
+app.use('/attendance', attendanceRouter);
 
-app.get('/checkToken', withAuth, function (req, res) {
-  res
-    .status(200)
-    .json({email: res.email, name: res.name, userType: res.userType});
+app.post('/upload', function (req, res) {
+  const file = req.files.file_attachment;
+  const fileContent = Buffer.from(file.data, 'binary');
+
+  const params = {
+    Bucket: constants.DEFAULT_BUCKET,
+    Key: file.name, // File name you want to save as in S3
+    Body: fileContent,
+  };
+
+  // Uploading files to the bucket
+  s3.upload(params, function (err, data) {
+    if (err) {
+      throw err;
+    }
+    res.send({
+      url: `${constants.S3_ENDPOINT}${constants.DEFAULT_BUCKET}/${file.name}`,
+    });
+  });
 });
 
 http.listen(port, () => {
