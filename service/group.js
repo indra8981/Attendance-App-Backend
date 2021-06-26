@@ -1,4 +1,19 @@
 const sql = require('../mysql.js');
+ 
+function inviteUsersToGroup(emailList, groupId) {
+  const sqlQuery = `INSERT INTO userAccess (userId, groupId) VALUES ?`;
+  var values = [];
+  for (var i = 0; i < emailList.length; i++) {
+    values.push([emailList[i], groupId]);
+  }
+  sql.query(sqlQuery, [values], function (err, result) {
+    if (err) {
+      res.sendStatus(400);
+      return;
+    }
+    console.log('Number of records inserted: ' + result.affectedRows);
+  });
+}
 
 async function getAllUsersInClassroom(groupId) {
   let resu = await new Promise((resolve, reject) => {
@@ -47,4 +62,4 @@ async function getGroupCreatorLocation(groupId) {
   return resu[0];
 }
 
-module.exports = {getAllUsersInClassroom, getGroupCreatorLocation};
+module.exports = {inviteUsersToGroup, getAllUsersInClassroom, getGroupCreatorLocation};

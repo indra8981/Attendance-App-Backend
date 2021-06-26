@@ -54,10 +54,11 @@ router.route('/start-attendance').get(async (req, res) => {
   res.sendStatus(200);
 });
 
-router.route('/getAttendance').get(async (req, res) => {
-  const groupId = req.query.groupId;
-  const startDate = req.query.startDate;
-  const endDate = req.query.endDate;
+router.route('/getAttendance').post(async (req, res) => {
+  console.log(req.body)
+  const groupId = req.body.groupId;
+  const startDate = req.body.startDate;
+  const endDate = req.body.endDate;
   const attendanceData = await attendance.getAllStudentsWithAttendanceCountWithinRange(
     startDate,
     endDate,

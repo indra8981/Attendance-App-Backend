@@ -136,6 +136,11 @@ async function getClassCount(groupId, startTimestamp, endTimestamp) {
       resolve(result);
     });
   });
+  if(resu.length == 0) {
+    return {
+      totalClasses: 0
+    }
+  }
   return resu[0];
 }
 
