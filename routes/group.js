@@ -72,6 +72,40 @@ router.route('/getGroupDetails').get(async (req, res) => {
   res.status(200).send({groupDetails: groupDetails});
 });
 
+router.route('/updateGroupDetails').post(async (req, res) => {
+  const groupId = req.body.groupId;
+  const groupName = req.body.groupName;
+  const groupDescription = req.body.groupDescription;
+  const groupType = req.body.groupType;
+  const createdByUser = req.body.createdByUser;
+  const additionalInfo = req.body.additionalInfo;
+
+  const sqlQuery = `UPDATE
+                      groupTable
+                    SET
+                      groupName = '${groupName}',
+                      groupDescription = '${groupDescription}',
+                      groupType = ${groupType},
+                      createdByUser = '${createdByUser}',
+                      additionalInfo = '${additionalInfo}'
+                    WHERE
+                      id = ${groupId}`;
+
+  sql.query(sqlQuery, function (err, result) {
+    if (err) {
+      res.status(400).send({error: err.sqlMessage});
+      return;
+    }
+    console.log(
+      'Number of records updated: ' +
+        result.affectedRows +
+        ' ' +
+        result.insertId,
+    );
+    console.log(result);
+    res.status(201).send(result);
+  });
+});
 
 router.route(`/`);
 
