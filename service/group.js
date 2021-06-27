@@ -62,4 +62,49 @@ async function getGroupCreatorLocation(groupId) {
   return resu[0];
 }
 
-module.exports = {inviteUsersToGroup, getAllUsersInClassroom, getGroupCreatorLocation};
+async function getAllUsersInGroup(groupId) {
+  let resu = await new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT userID FROM userAccess WHERE groupId = ${groupId}`;
+    console.log(sqlQuery);
+    sql.query(sqlQuery, function (err, result) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      resolve(result);
+    });
+  });
+
+  var val = []
+  for (var i = 0; i <resu.length; i++) {
+    val.push(resu[i].userID);
+  }
+
+  console.log(resu);
+
+  return val;
+}
+
+async function getGroupDetails(groupId) {
+  let resu = await new Promise((resolve, reject) => {
+    const sqlQuery = `SELECT * FROM groupTable WHERE id = ${groupId}`;
+    console.log(sqlQuery);
+    sql.query(sqlQuery, function (err, result) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      resolve(result);
+    });
+  });
+
+  console.log(resu);
+
+  return resu[0];
+}
+
+
+
+
+
+module.exports = {inviteUsersToGroup, getAllUsersInClassroom, getGroupCreatorLocation, getAllUsersInGroup, getGroupDetails};

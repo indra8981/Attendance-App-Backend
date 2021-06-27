@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const sql = require('../mysql.js');
+const groupService = require('../service/group')
 
 router.route('/createGroup').post((req, res) => {
   const sqlQuery = 'INSERT INTO groupTable SET ?';
@@ -60,6 +61,17 @@ router.route('/inviteUsers').post((req, res) => {
   });
   res.sendStatus(201);
 });
+
+router.route('/getGroupDetails').get(async (req, res) => {
+  const groupId = req.query.groupId;
+  const groupDetails = await groupService.getGroupDetails(groupId);
+  const invitedUsers = await groupService.getAllUsersInGroup(groupId);
+
+  groupDetails['invitedUsers'] = invitedUsers;
+  
+  res.status(200).send({groupDetails: groupDetails});
+});
+
 
 router.route(`/`);
 
