@@ -55,7 +55,7 @@ router.route('/start-attendance').get(async (req, res) => {
 });
 
 router.route('/getAttendance').post(async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   const groupId = req.body.groupId;
   const startDate = req.body.startDate;
   const endDate = req.body.endDate;

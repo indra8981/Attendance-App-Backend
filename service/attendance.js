@@ -88,7 +88,7 @@ async function getAllStudentsWithAttendanceCountWithinRange(
   const startTimestamp = common_utils.dateToTimestamp(startDate);
   const endTimestamp = common_utils.dateToTimestamp(endDate);
   const sqlQuery = `SELECT users.rollNumber,users.name,attendance.present from users
-                    JOIN (SELECT userId,COUNT(userId) as present from attendance
+                    LEFT JOIN (SELECT userId,COUNT(userId) as present from attendance
                     WHERE groupId=${groupId} AND timestamp>=${startTimestamp} AND timestamp<=${endTimestamp}
                     GROUP BY userId) attendance
                     ON attendance.userId=users.email 
@@ -136,10 +136,10 @@ async function getClassCount(groupId, startTimestamp, endTimestamp) {
       resolve(result);
     });
   });
-  if(resu.length == 0) {
+  if (resu.length == 0) {
     return {
-      totalClasses: 0
-    }
+      totalClasses: 0,
+    };
   }
   return resu[0];
 }
