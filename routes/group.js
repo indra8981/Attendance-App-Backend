@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const sql = require('../mysql.js');
-const groupService = require('../service/group')
+const groupService = require('../service/group');
 
 router.route('/createGroup').post((req, res) => {
   const sqlQuery = 'INSERT INTO groupTable SET ?';
@@ -45,6 +45,9 @@ router.route('/listGroup').get(async (req, res) => {
 });
 
 router.route('/inviteUsers').post((req, res) => {
+  if (req.body.emails === '') {
+    return res.sendStatus(201);
+  }
   const emailList = req.body.emails.split(',');
   const groupId = req.body.groupId;
   const sqlQuery = `INSERT INTO userAccess (userId, groupId) VALUES ?`;
@@ -68,7 +71,7 @@ router.route('/getGroupDetails').get(async (req, res) => {
   const invitedUsers = await groupService.getAllUsersInGroup(groupId);
 
   groupDetails['invitedUsers'] = invitedUsers;
-  
+
   res.status(200).send({groupDetails: groupDetails});
 });
 
@@ -93,6 +96,7 @@ router.route('/updateGroupDetails').post(async (req, res) => {
 
   sql.query(sqlQuery, function (err, result) {
     if (err) {
+      console.log(err);
       res.status(400).send({error: err.sqlMessage});
       return;
     }
