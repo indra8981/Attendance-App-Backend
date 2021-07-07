@@ -18,7 +18,7 @@ function getUsersWithinThresholdRadius(
     );
     if (
       currDist <= constants.THRESHOLD_DISTANCE_FOR_ATTENDANCE_IN_METRES &&
-      currEpoch - groupCreatorLocation.timestamp <=
+      currEpoch - user.timestamp <=
         constants.ALLOWED_TIME_DIFFERENCE_TO_REMAIN_OFFLINE
     ) {
       allPresentUsers.push(user);
@@ -111,11 +111,13 @@ async function getAllStudentsWithAttendanceCountWithinRange(
   const finalTableStructure = [];
   for (let user of resu) {
     const currentUser = [...Object.values(user)];
+    if (currentUser[2] == null) currentUser[2] = 0;
 
     currentUser.push(totalClasses - user.present);
     currentUser.push((user.present * 100) / totalClasses);
     finalTableStructure.push(currentUser);
   }
+  console.log(finalTableStructure);
   return {
     data: finalTableStructure,
     totalClasses: totalClasses,

@@ -8,6 +8,7 @@ const dsu = require('../utils/dsu.js');
 
 router.route('/start-attendance').get(async (req, res) => {
   const currEpoch = +new Date();
+  console.log('Lola', currEpoch);
   const groupId = req.query.groupId;
   attendance.logClassroomRecord(groupId, currEpoch);
   let [allUsersInClassroom, groupCreatorLocation] = await Promise.all([
